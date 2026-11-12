@@ -1,19 +1,159 @@
-<html>
-    <header>
-        <title>Cifras</title> 
-    </header>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>O que o navegador esconde de você — Byte Aberto</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Source+Sans+3:wght@400;600&family=Source+Code+Pro:wght@500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #e8eef2;
+            --bg-deep: #d5e0e8;
+            --ink: #14202b;
+            --muted: #4a5d6b;
+            --accent: #0b6e6e;
+            --rule: #b8c7d1;
+            --code-bg: #dce6ed;
+        }
 
-    <body>
-        <p>
-            Under Construction.
-        </p>
-        <br>
-        <br>
-        <br>
-        <br>
-        <br>
-        <p>
-            Or not?
-        </p>
-    </body>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            min-height: 100vh;
+            color: var(--ink);
+            font-family: "Source Sans 3", Georgia, sans-serif;
+            font-size: 1.125rem;
+            line-height: 1.7;
+            background:
+                linear-gradient(165deg, transparent 40%, rgba(11, 110, 110, 0.06) 100%),
+                radial-gradient(ellipse 90% 55% at 0% -10%, #f4f8fa 0%, transparent 55%),
+                radial-gradient(ellipse 70% 50% at 100% 0%, var(--bg-deep) 0%, transparent 50%),
+                var(--bg);
+        }
+
+        .wrap {
+            width: min(40rem, calc(100% - 2.5rem));
+            margin: 0 auto;
+            padding: 3.5rem 0 5rem;
+        }
+
+        .brand {
+            font-family: "Source Code Pro", monospace;
+            font-size: 0.8rem;
+            font-weight: 500;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 2.75rem;
+        }
+
+        h1 {
+            font-family: "Fraunces", Georgia, serif;
+            font-size: clamp(2.1rem, 6vw, 3rem);
+            font-weight: 700;
+            line-height: 1.15;
+            letter-spacing: -0.02em;
+            margin-bottom: 1rem;
+            max-width: 16ch;
+        }
+
+        .deck {
+            color: var(--muted);
+            font-size: 1.15rem;
+            max-width: 36ch;
+            margin-bottom: 2.5rem;
+        }
+
+        .meta {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            font-size: 0.85rem;
+            color: var(--muted);
+            border-top: 1px solid var(--rule);
+            border-bottom: 1px solid var(--rule);
+            padding: 0.85rem 0;
+            margin-bottom: 2.5rem;
+        }
+
+        article p + p { margin-top: 1.25rem; }
+
+        article a {
+            color: var(--accent);
+            text-underline-offset: 3px;
+        }
+
+        code {
+            font-family: "Source Code Pro", monospace;
+            font-size: 0.9em;
+            background: var(--code-bg);
+            padding: 0.12em 0.35em;
+            border-radius: 3px;
+        }
+
+        .pull {
+            margin: 2.25rem 0;
+            padding-left: 1.25rem;
+            border-left: 3px solid var(--accent);
+            color: var(--muted);
+            font-size: 1.05rem;
+        }
+
+        footer {
+            margin-top: 3.5rem;
+            padding-top: 1.25rem;
+            border-top: 1px solid var(--rule);
+            font-size: 0.85rem;
+            color: var(--muted);
+        }
+    </style>
+</head>
+<body>
+    <!-- -8.045870074880792, -34.946476371163875 -->
+    <div class="wrap">
+        <p class="brand">Byte Aberto</p>
+
+        <header>
+            <h1>O que o navegador esconde de você</h1>
+            <p class="deck">Por trás de cada página há uma camada que quase ninguém abre — e é exatamente aí que as coisas interessantes começam.</p>
+            <p class="meta">
+                <span>12 nov 2026</span>
+                <span>dev tools</span>
+                <span>5 min</span>
+            </p>
+        </header>
+
+        <article>
+            <p>
+                A gente passa o dia inteiro em sites, apps e dashboards. Clica, rola, preenche formulário.
+                Pouca gente para para perguntar: <em>o que o navegador está renderizando de verdade?</em>
+            </p>
+            <p>
+                A resposta está no código-fonte. Em qualquer página, você pode abrir as ferramentas de desenvolvedor
+                com <code>F12</code> (ou <code>Ctrl+Shift+I</code> / <code>Cmd+Option+I</code>) e inspecionar
+                HTML, CSS e scripts ao vivo. Também dá para ver o fonte estático com
+                <code>Ctrl+U</code> — “Ver código-fonte da página”.
+            </p>
+            <p class="pull">
+                Se você nunca abriu o inspetor nesta página, vale a pena. Comentários HTML, metadados e
+                restos de build costumam ficar quietos no fonte — invisíveis na tela, óbvios no F12.
+            </p>
+            <p>
+                Desenvolvedores usam isso o tempo todo para depurar layout, rede e performance.
+                Curiosos usam para entender como um site foi feito. E, de vez em quando, alguém deixa
+                uma pista bem no meio do markup, esperando que a pessoa certa aperte a tecla certa.
+            </p>
+            <p>
+                Na próxima vez que uma página parecer “só texto”, lembre: o navegador mostra uma face.
+                O código mostra outra.
+            </p>
+        </article>
+
+        <footer>
+            Byte Aberto — notas curtas sobre a web que você não vê.
+        </footer>
+    </div>
+</body>
 </html>
