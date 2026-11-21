@@ -1,7 +1,5 @@
 # Lista rápida
 
-Edite este arquivo a qualquer momento. Só o nome do filme importa.
-
 ## Já vi
 
 - Sinners
