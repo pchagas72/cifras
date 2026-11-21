@@ -16,6 +16,7 @@
     <a class="brand" href="#lista" data-nav="lista">Lista</a>
     <nav class="nav" aria-label="Principal">
       <button type="button" class="nav-link is-active" data-nav="lista">Filmes</button>
+      <button type="button" class="nav-link" data-nav="rapida">Rápida</button>
       <button type="button" class="nav-link" data-nav="adicionar">Adicionar</button>
     </nav>
   </header>
@@ -24,10 +25,21 @@
     <section id="view-lista" class="view is-active" aria-labelledby="lista-title">
       <header class="view-header">
         <h1 id="lista-title">Filmes</h1>
+        <p class="lede">Detalhes, links e quem recomendou.</p>
       </header>
 
       <div id="movie-list" class="movie-list" role="list"></div>
       <p id="empty-state" class="empty-state" hidden>Nenhum filme ainda. Adicione o primeiro.</p>
+    </section>
+
+    <section id="view-rapida" class="view" aria-labelledby="rapida-title" hidden>
+      <header class="view-header">
+        <h1 id="rapida-title">Rápida</h1>
+        <p class="lede">Só os nomes — editável em <code>lista-rapida.md</code>.</p>
+      </header>
+
+      <div id="quick-lists" class="quick-lists"></div>
+      <p id="quick-empty" class="empty-state" hidden>Não foi possível ler a lista rápida.</p>
     </section>
 
     <section id="view-adicionar" class="view" aria-labelledby="add-title" hidden>
@@ -65,6 +77,11 @@
           <input id="subtitles" name="subtitles" type="text" required autocomplete="off" placeholder="Fonte das legendas">
           <input id="subtitlesUrl" name="subtitlesUrl" type="url" autocomplete="off" placeholder="Link das legendas (opcional)">
         </div>
+
+        <label class="check-field">
+          <input id="watched" name="watched" type="checkbox">
+          <span>Já visto</span>
+        </label>
 
         <div class="form-actions">
           <button type="submit" class="btn btn-primary">Salvar filme</button>

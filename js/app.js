@@ -1,12 +1,16 @@
-const STORAGE_KEY = "nossa-lista-movies";
+const STORAGE_KEY = "lista-movies";
+const VIEW_NAMES = ["lista", "rapida", "adicionar"];
 
 const views = {
   lista: document.getElementById("view-lista"),
+  rapida: document.getElementById("view-rapida"),
   adicionar: document.getElementById("view-adicionar"),
 };
 
 const movieList = document.getElementById("movie-list");
 const emptyState = document.getElementById("empty-state");
+const quickLists = document.getElementById("quick-lists");
+const quickEmpty = document.getElementById("quick-empty");
 const form = document.getElementById("movie-form");
 const formStatus = document.getElementById("form-status");
 
@@ -21,6 +25,7 @@ function normalizeMovie(raw) {
     subtitles: String(raw.subtitles ?? "").trim(),
     subtitlesUrl: String(raw.subtitlesUrl ?? "").trim(),
     recommendedBy: String(raw.recommendedBy ?? "").trim(),
+    watched: Boolean(raw.watched),
   };
 }
 
@@ -57,6 +62,7 @@ function mergeMovies(seed, local) {
     byId.set(movie.id, movie);
   }
   return [...byId.values()].sort((a, b) => {
+    if (a.watched !== b.watched) return a.watched ? 1 : -1;
     if (b.year !== a.year) return b.year - a.year;
     return a.title.localeCompare(b.title, "pt-BR");
   });
@@ -80,6 +86,67 @@ function escapeAttr(value) {
   return escapeHtml(value).replaceAll("'", "&#39;");
 }
 
+function parseQuickMarkdown(markdown) {
+  const sections = { "Já vi": [], "Quero ver": [] };
+  let current = null;
+
+  for (const rawLine of markdown.split(/\r?\n/)) {
+    const line = rawLine.trim();
+    if (!line) continue;
+
+    const heading = line.match(/^##\s+(.+)$/);
+    if (heading) {
+      current = heading[1].trim();
+      if (!sections[current]) sections[current] = [];
+      continue;
+    }
+
+    const item = line.match(/^[-*]\s+(.+)$/);
+    if (item && current) {
+      sections[current].push(item[1].trim());
+    }
+  }
+
+  return sections;
+}
+
+async function loadQuickList() {
+  const response = await fetch("lista-rapida.md", { cache: "no-store" });
+  if (!response.ok) throw new Error("Falha ao carregar lista-rapida.md");
+  return parseQuickMarkdown(await response.text());
+}
+
+function renderQuickList(sections) {
+  quickLists.innerHTML = "";
+  const entries = Object.entries(sections).filter(([, titles]) => titles.length > 0);
+
+  if (entries.length === 0) {
+    quickEmpty.hidden = false;
+    return;
+  }
+
+  quickEmpty.hidden = true;
+
+  for (const [heading, titles] of entries) {
+    const block = document.createElement("section");
+    block.className = "quick-section";
+    block.innerHTML = `<h2>${escapeHtml(heading)}</h2>`;
+
+    const list = document.createElement("ul");
+    list.className = "quick-list";
+
+    titles.forEach((title, index) => {
+      const li = document.createElement("li");
+      li.style.animationDelay = `${Math.min(index, 12) * 35}ms`;
+      li.textContent = title;
+      list.appendChild(li);
+    });
+
+    block.appendChild(list);
+    quickLists.appendChild(block);
+  }
+}
+
 function renderMovies(movies) {
   movieList.innerHTML = "";
 
@@ -92,10 +159,18 @@ function renderMovies(movies) {
 
   movies.forEach((movie, index) => {
     const item = document.createElement("article");
-    item.className = "movie-item";
+    item.className = `movie-item${movie.watched ? " is-watched" : ""}`;
     item.setAttribute("role", "listitem");
     item.style.animationDelay = `${Math.min(index, 12) * 40}ms`;
     item.innerHTML = `
+      <div class="col-watched">
+        <span class="label">Visto</span>
+        <label class="watched-toggle">
+          <input type="checkbox" data-watched-id="${escapeAttr(movie.id)}" ${movie.watched ? "checked" : ""}>
+          <span class="watched-box" aria-hidden="true"></span>
+          <span class="visually-hidden">Visto</span>
+        </label>
+      </div>
       <div class="col-title">
         <span class="label">Filme</span>
         ${linkOrText(movie.title, movie.titleUrl)}
@@ -122,7 +197,7 @@ function renderMovies(movies) {
 }
 
 function setActiveView(name) {
-  const target = name === "adicionar" ? "adicionar" : "lista";
+  const target = VIEW_NAMES.includes(name) ? name : "lista";
 
   for (const [key, el] of Object.entries(views)) {
     const active = key === target;
@@ -151,6 +226,7 @@ function movieFromForm(formData) {
     subtitles: formData.get("subtitles"),
     subtitlesUrl: formData.get("subtitlesUrl"),
     recommendedBy: formData.get("recommendedBy"),
+    watched: formData.get("watched") === "on",
   });
 }
 
@@ -163,9 +239,43 @@ function validateMovie(movie) {
   return null;
 }
 
-async function refresh() {
+async function getMergedMovies() {
   const [seed, local] = await Promise.all([loadSeedMovies(), Promise.resolve(loadLocalMovies())]);
-  renderMovies(mergeMovies(seed, local));
+  return mergeMovies(seed, local);
+}
+
+async function refreshMovies() {
+  renderMovies(await getMergedMovies());
+}
+
+async function refreshQuick() {
+  try {
+    renderQuickList(await loadQuickList());
+  } catch {
+    quickLists.innerHTML = "";
+    quickEmpty.hidden = false;
+  }
+}
+
+async function setWatched(id, watched) {
+  const seed = await loadSeedMovies();
+  const seedIds = new Set(seed.map((movie) => movie.id));
+  let local = loadLocalMovies();
+
+  if (seedIds.has(id)) {
+    const existing = local.find((movie) => movie.id === id);
+    const base = seed.find((movie) => movie.id === id);
+    if (existing) {
+      existing.watched = watched;
+    } else {
+      local.push({ ...base, watched });
+    }
+  } else {
+    local = local.map((movie) => (movie.id === id ? { ...movie, watched } : movie));
+  }
+
+  saveLocalMovies(local);
+  await refreshMovies();
 }
 
 document.querySelectorAll("[data-nav]").forEach((el) => {
@@ -173,6 +283,12 @@ document.querySelectorAll("[data-nav]").forEach((el) => {
     event.preventDefault();
     setActiveView(el.dataset.nav);
   });
+});
+
+movieList.addEventListener("change", async (event) => {
+  const input = event.target;
+  if (!(input instanceof HTMLInputElement) || !input.dataset.watchedId) return;
+  await setWatched(input.dataset.watchedId, input.checked);
 });
 
 form.addEventListener("submit", async (event) => {
@@ -193,7 +309,7 @@ form.addEventListener("submit", async (event) => {
   saveLocalMovies(local);
   form.reset();
   formStatus.textContent = "Filme adicionado à lista.";
-  await refresh();
+  await refreshMovies();
   setActiveView("lista");
 });
 
@@ -202,4 +318,5 @@ window.addEventListener("hashchange", () => {
 });
 
 setActiveView(location.hash.replace("#", "") || "lista");
-refresh();
+refreshMovies();
+refreshQuick();
