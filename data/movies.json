@@ -1,24 +1,2 @@
 [
-  {
-    "id": "example-portrait-of-a-lady-on-fire",
-    "title": "Portrait of a Lady on Fire",
-    "titleUrl": "https://www.imdb.com/title/tt8613070/",
-    "year": 2019,
-    "director": "Céline Sciamma",
-    "directorUrl": "https://www.imdb.com/name/nm0773199/",
-    "subtitles": "Open Subtitles",
-    "subtitlesUrl": "https://www.opensubtitles.org/",
-    "recommendedBy": "Pedro"
-  },
-  {
-    "id": "d6ad9791-3d6e-497c-9783-0ae1d4d9e23b",
-    "title": "Before Sunrise",
-    "titleUrl": "https://www.imdb.com/title/tt0112471/",
-    "year": 1995,
-    "director": "Richard Linklater",
-    "directorUrl": "https://www.imdb.com/name/nm0000500/",
-    "subtitles": "Open Subtitles",
-    "subtitlesUrl": "https://www.opensubtitles.org/",
-    "recommendedBy": "Ana"
-  }
 ]
